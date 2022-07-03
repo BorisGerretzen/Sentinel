@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sentinel", "Sentinel\Sentinel.csproj", "{F6AE7C6E-E801-4429-AD13-B23D473551ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SentinelLib", "SentinelLib\SentinelLib.csproj", "{82EA3A51-16B4-4733-8A2E-9128EEA7C007}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6AE7C6E-E801-4429-AD13-B23D473551ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6AE7C6E-E801-4429-AD13-B23D473551ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6AE7C6E-E801-4429-AD13-B23D473551ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6AE7C6E-E801-4429-AD13-B23D473551ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82EA3A51-16B4-4733-8A2E-9128EEA7C007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EA3A51-16B4-4733-8A2E-9128EEA7C007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EA3A51-16B4-4733-8A2E-9128EEA7C007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EA3A51-16B4-4733-8A2E-9128EEA7C007}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

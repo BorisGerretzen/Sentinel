@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SentinelLib\SentinelLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Certstream" Version="1.0.1" />
+    </ItemGroup>
+
+</Project>
