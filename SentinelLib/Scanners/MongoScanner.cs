@@ -15,7 +15,7 @@ public class MongoScanner : Scanner{
                 var databases = string.Join(',', client.ListDatabases().ToList());
                 returnDict[port] = databases;
             }
-            catch {
+            catch(Exception e) {
                 returnDict[port] = null;
             }
         }

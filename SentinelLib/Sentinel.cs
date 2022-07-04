@@ -10,21 +10,30 @@ public class Sentinel :IDisposable {
     private readonly ScannerProvider _scannerProvider;
     private readonly CancellationTokenSource _cancellationSource = new();
     private readonly int _numWorkers;
-    
-    public Sentinel(ScannerProvider scannerProvider, int numWorkers) {
+    private readonly ResponseCallback _responseCallback;
+
+    public delegate void ResponseCallback(ScannerOutput response);
+
+    public Sentinel(ScannerProvider scannerProvider, int numWorkers, ResponseCallback responseCallback) {
         _scannerProvider = scannerProvider;
         _numWorkers = numWorkers;
+        _responseCallback = responseCallback;
     }
     
     public void Start() {
         for (int i = 0; i < _numWorkers; i++) {
-            var worker = new SentinelWorker(_work, _finished, _scannerProvider, _cancellationSource.Token);
-            _workers.Add(new Thread(worker.Run));
+            var worker = new SentinelWorker(_work, _finished, _scannerProvider, _cancellationSource.Token, _responseCallback);
+            var thread = new Thread(worker.Run);
+            _workers.Add(thread);
+            thread.Start();
         }
     }
-    
+
     public void AddWork(ScannerParams scannerParams) {
         _work.Enqueue(scannerParams);
+        lock (_work) {
+            Monitor.Pulse(_work);
+        }
     }
     
     #region Disposing
