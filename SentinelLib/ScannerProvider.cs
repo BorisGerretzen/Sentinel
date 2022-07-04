@@ -1,25 +1,28 @@
-﻿using SentinelLib.Scanners;
+﻿using SentinelLib.Models;
+using SentinelLib.Scanners;
 
-namespace SentinelLib; 
+namespace SentinelLib;
 
 public sealed class ScannerProvider {
     /// <summary>
-    /// Default ScannerProvider
+    ///     Default ScannerProvider
     /// </summary>
     public static ScannerProvider DefaultProvider = new();
-    
+
     private readonly Dictionary<ServiceType, Func<ScannerParams, Scanner>> _registeredScanners = new();
 
     /// <summary>
-    /// Creates a new ScannerProvider that handles the instantiation of different scanners.
+    ///     Creates a new ScannerProvider that handles the instantiation of different scanners.
     /// </summary>
     private ScannerProvider() {
         Register(ServiceType.Mongo, scannerParams => new MongoScanner(scannerParams));
+        Register(ServiceType.MongoExpress, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
+        Register(ServiceType.ElasticSearch, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
     }
 
     /// <summary>
-    /// Instantiates a new scanner according to the name presented.
-    /// Name is case insensitive.
+    ///     Instantiates a new scanner according to the name presented.
+    ///     Name is case insensitive.
     /// </summary>
     /// <param name="serviceType">The service of the scanner.</param>
     /// <param name="scannerParams">Parameters for invoking the scanner.</param>
@@ -30,7 +33,7 @@ public sealed class ScannerProvider {
     }
 
     /// <summary>
-    /// Register a new scanner in the provider.
+    ///     Register a new scanner in the provider.
     /// </summary>
     /// <param name="serviceType">The service of the scanner.</param>
     /// <param name="creator">Creator of the scanner.</param>

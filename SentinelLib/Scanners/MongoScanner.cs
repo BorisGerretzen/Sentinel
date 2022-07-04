@@ -1,24 +1,26 @@
-﻿using System.Net.Sockets;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
+using SentinelLib.Models;
 
-namespace SentinelLib.Scanners; 
+namespace SentinelLib.Scanners;
 
-public class MongoScanner : Scanner{
+public class MongoScanner : Scanner {
     public MongoScanner(ScannerParams scannerParams) : base(scannerParams) { }
     protected override List<int> Ports => new() { 27017 };
-    public override Dictionary<int, string?> Scan() {
-        var openPorts = ScanPorts().Where(kvp => kvp.Value).Select(kvp => kvp.Key);
-        Dictionary<int, string?> returnDict = new();
-        foreach (var port in openPorts) {
+
+    public override async Task<Dictionary<int, Response>> Scan() {
+        var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key);
+        Dictionary<int, Response> returnDict = new();
+        foreach (var port in openPorts)
             try {
                 var client = new MongoClient($"mongodb://{_scannerParams.Domain}:{port}");
-                var databases = string.Join(',', client.ListDatabases().ToList());
-                returnDict[port] = databases;
+                var databases = (await client.ListDatabasesAsync()).ToList();
+                returnDict[port] = new Response {
+                    TextResponse = string.Join(',', databases)
+                };
             }
-            catch(Exception e) {
-                returnDict[port] = null;
+            catch {
+                // ignored
             }
-        }
 
         return returnDict;
     }

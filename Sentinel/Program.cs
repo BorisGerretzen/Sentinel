@@ -1,56 +1,45 @@
 ﻿using System.Diagnostics;
-using System.Text.Json.Nodes;
 using Certstream;
 using Newtonsoft.Json;
 using SentinelLib;
+using SentinelLib.Models;
 
 ServiceType StringToServiceType(string label) {
     label = label.ToLower();
     switch (label) {
         case "mongo":
             return ServiceType.Mongo;
+        case "mongoexpress":
+        case "mongo-express":
+            return ServiceType.MongoExpress;
+        case "elastic":
+        case "elasticsearch":
+            return ServiceType.ElasticSearch;
         default:
             return ServiceType.None;
     }
 }
 
 void ResponseCallback(ScannerOutput param) {
-    string json = JsonConvert.SerializeObject(param, Formatting.Indented);
-    File.WriteAllText($"{param.InputParams.Domain}.json", json);
-}
-void WriteProgress(string s, int x) {
-    int origRow = Console.CursorTop;
-    int origCol = Console.CursorLeft;
-    // Console.WindowWidth = 10;  // this works. 
-    int width = Console.WindowWidth;
-    x = x % width;
-    try {
-        Console.SetCursorPosition(x, 1);
-        Console.Write(s);
-    } catch (ArgumentOutOfRangeException e) {
-
-    } finally {
-        try {
-            Console.SetCursorPosition(origCol, origRow);
-        } catch (ArgumentOutOfRangeException e) {
-        }
-    }
+    var json = JsonConvert.SerializeObject(param, Formatting.Indented);
+    File.WriteAllText($"{param.InputParams?.Domain}.json", json);
+    // elasticClient.Index(param, null);
 }
 
-using SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, 2, ResponseCallback);
-sentinel.Start();
+
+SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
 Thread.Sleep(100);
-CertstreamClient client = new CertstreamClient(-1);
-int numdomains = 0;
+var client = new CertstreamClient(-1);
+ulong numdomains = 0;
 Stopwatch stopwatch = new();
+
 client.CertificateIssued += (_, cert) => {
     foreach (var domain in cert.AllDomains) {
         if (string.IsNullOrEmpty(domain)) continue;
         lock (client) {
-            WriteProgress(string.Concat(Enumerable.Repeat(" ", 200)), 0);
-            WriteProgress(domain, 1);
-            WriteProgress(numdomains.ToString(), 100);
-            WriteProgress(Math.Round(numdomains / (stopwatch.ElapsedMilliseconds/1000f)).ToString(), 150);
+            Console.Write($"{domain,-150}" +
+                          $"{numdomains,10}" +
+                          $"{Math.Round(numdomains / (stopwatch.ElapsedMilliseconds / 1000f)),10}\n");
         }
 
         numdomains++;
@@ -63,9 +52,17 @@ client.CertificateIssued += (_, cert) => {
         // Get servicetype
         var serviceType = StringToServiceType(label);
         if (serviceType == ServiceType.None) continue;
-
-        sentinel.AddWork(new ScannerParams(domain, serviceType));
-        
+        switch (serviceType) {
+            case ServiceType.ElasticSearch:
+                sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 9200 }));
+                break;
+            case ServiceType.MongoExpress:
+                sentinel.AddWork(new HttpScannerParams(domain, serviceType));
+                break;
+            default:
+                sentinel.AddWork(new ScannerParams(domain, serviceType));
+                break;
+        }
     }
 };
 client.Start();
