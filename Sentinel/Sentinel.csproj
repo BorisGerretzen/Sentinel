@@ -9,18 +9,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SentinelLib\SentinelLib.csproj"/>
+        <ProjectReference Include="..\SentinelLib\SentinelLib.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="NEST" Version="7.17.4"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1"/>
+        <PackageReference Include="Certstream" Version="1.0.2" />
+        <PackageReference Include="NEST" Version="7.17.4" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Certstream">
-            <HintPath>..\..\Certstream\Certstream\bin\Debug\net6.0\Certstream.dll</HintPath>
-        </Reference>
+      <None Remove="output_cn_mongo.csv" />
     </ItemGroup>
 
 </Project>

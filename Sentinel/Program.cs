@@ -4,68 +4,77 @@ using Newtonsoft.Json;
 using SentinelLib;
 using SentinelLib.Models;
 
-ServiceType StringToServiceType(string label) {
-    label = label.ToLower();
-    switch (label) {
-        case "mongo":
-            return ServiceType.Mongo;
-        case "mongoexpress":
-        case "mongo-express":
-            return ServiceType.MongoExpress;
-        case "elastic":
-        case "elasticsearch":
-            return ServiceType.ElasticSearch;
-        default:
-            return ServiceType.None;
-    }
-}
-
 void ResponseCallback(ScannerOutput param) {
-    var json = JsonConvert.SerializeObject(param, Formatting.Indented);
+    var json = JsonConvert.SerializeObject(
+        param, 
+        Formatting.Indented, 
+        new JsonSerializerSettings { 
+        NullValueHandling = NullValueHandling.Ignore
+    });
     File.WriteAllText($"{param.InputParams?.Domain}.json", json);
     // elasticClient.Index(param, null);
 }
 
-
-SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
 Thread.Sleep(100);
-var client = new CertstreamClient(-1);
-ulong numdomains = 0;
-Stopwatch stopwatch = new();
+object workLock = new object();
+bool doWork = true;
 
-client.CertificateIssued += (_, cert) => {
-    foreach (var domain in cert.AllDomains) {
-        if (string.IsNullOrEmpty(domain)) continue;
-        lock (client) {
-            Console.Write($"{domain,-150}" +
-                          $"{numdomains,10}" +
-                          $"{Math.Round(numdomains / (stopwatch.ElapsedMilliseconds / 1000f)),10}\n");
+Thread certThread = new Thread(() => {
+    SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
+    var client = new CertstreamClient(-1);
+    ulong numdomains = 0;
+    Stopwatch stopwatch = new();
+    client.CertificateIssued += (_, cert) => {
+        lock (workLock) {
+            if (!doWork) client.Stop();
         }
 
-        numdomains++;
+        foreach (var domain in cert.AllDomains) {
+            if (string.IsNullOrEmpty(domain)) continue;
+            numdomains++;
+            lock (client) {
+                Console.Write($"{domain,-100}" +
+                              $"{numdomains,-20}" +
+                              $"{Math.Round(numdomains / (stopwatch.ElapsedMilliseconds / 1000f)),-10}" +
+                              $"{DateTime.Now,-15}\n");
+            }
+            // get label
+            var split = domain.Split('.');
+            if (split.Length <= 2) continue;
+            var label = split[0];
 
-        // get label
-        var split = domain.Split('.');
-        if (split.Length <= 2) continue;
-        var label = split[0];
-
-        // Get servicetype
-        var serviceType = StringToServiceType(label);
-        if (serviceType == ServiceType.None) continue;
-        switch (serviceType) {
-            case ServiceType.ElasticSearch:
-                sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 9200 }));
-                break;
-            case ServiceType.MongoExpress:
-                sentinel.AddWork(new HttpScannerParams(domain, serviceType));
-                break;
-            default:
-                sentinel.AddWork(new ScannerParams(domain, serviceType));
-                break;
+            // Get servicetype
+            var serviceType = Helpers.StringToServiceType(label);
+            if (serviceType == ServiceType.None) continue;
+            switch (serviceType) {
+                case ServiceType.Radarr:
+                    sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 7878 }));
+                    break;
+                case ServiceType.Sonarr:
+                    sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 8989 }));
+                    break;
+                case ServiceType.ElasticSearch:
+                    sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 9200 }));
+                    break;
+                case ServiceType.MongoExpress:
+                    sentinel.AddWork(new HttpScannerParams(domain, serviceType));
+                    break;
+                default:
+                    sentinel.AddWork(new ScannerParams(domain, serviceType));
+                    break;
+            }
         }
-    }
-};
-client.Start();
-stopwatch.Start();
-Console.ReadKey();
-client.Stop();
+    };
+    client.Start();
+    stopwatch.Start();
+});
+
+Thread localHostThread = new Thread(() => {
+    SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
+    sentinel.AddWork(new ScannerParams("127.0.0.1", ServiceType.Mongo));
+});
+certThread.Start();
+Console.ReadLine();
+lock (workLock) {
+    doWork = false;
+}

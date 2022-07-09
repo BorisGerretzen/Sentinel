@@ -18,6 +18,8 @@ public sealed class ScannerProvider {
         Register(ServiceType.Mongo, scannerParams => new MongoScanner(scannerParams));
         Register(ServiceType.MongoExpress, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
         Register(ServiceType.ElasticSearch, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
+        Register(ServiceType.Sonarr, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
+        Register(ServiceType.Radarr, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
     }
 
     /// <summary>
