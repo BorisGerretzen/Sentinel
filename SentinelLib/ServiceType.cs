@@ -4,7 +4,6 @@ public enum ServiceType {
     Mongo,
     MongoExpress,
     ElasticSearch,
-    Sonarr,
-    Radarr,
+    MySql,
     None
 }

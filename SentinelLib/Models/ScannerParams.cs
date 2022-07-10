@@ -3,11 +3,11 @@ using Newtonsoft.Json.Converters;
 
 namespace SentinelLib.Models;
 
-[JsonObject(MemberSerialization.OptIn)]
+[JsonObject(MemberSerialization.OptOut)]
 public class ScannerParams {
-    [JsonProperty] public string Domain;
+    public string Domain;
 
-    [JsonProperty] [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public ServiceType ServiceType;
 
     public ScannerParams(string domain, ServiceType serviceType) {

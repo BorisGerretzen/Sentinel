@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+using Newtonsoft.Json;
 
 namespace SentinelLib.Models;
 
-[JsonObject(MemberSerialization.OptIn)]
+[JsonObject(MemberSerialization.OptOut)]
 public class ScannerOutput {
-    [JsonProperty] public ScannerParams? InputParams { get; set; }
-    [JsonProperty] public Dictionary<int, Response>? Responses { get; set; }
+    public ScannerParams? InputParams { get; set; }
+
+    [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+    public Dictionary<int, Response>? Responses { get; set; }
 }

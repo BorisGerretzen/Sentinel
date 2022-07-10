@@ -18,8 +18,7 @@ public sealed class ScannerProvider {
         Register(ServiceType.Mongo, scannerParams => new MongoScanner(scannerParams));
         Register(ServiceType.MongoExpress, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
         Register(ServiceType.ElasticSearch, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
-        Register(ServiceType.Sonarr, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
-        Register(ServiceType.Radarr, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
+        Register(ServiceType.MySql, scannerParams => new MySqlScanner(scannerParams));
     }
 
     /// <summary>
@@ -40,6 +39,8 @@ public sealed class ScannerProvider {
     /// <param name="serviceType">The service of the scanner.</param>
     /// <param name="creator">Creator of the scanner.</param>
     public void Register(ServiceType serviceType, Func<ScannerParams, Scanner> creator) {
+        if (_registeredScanners.ContainsKey(serviceType))
+            throw new ArgumentException($"ServiceType {serviceType} is already registered.");
         _registeredScanners[serviceType] = creator;
     }
 }

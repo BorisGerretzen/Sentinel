@@ -1,15 +1,11 @@
-﻿using SentinelLib;
-
-namespace Sentinel; 
+﻿namespace Sentinel; 
 
 public static class Helpers {
     public static ServiceType StringToServiceType(string label) {
         label = label.ToLower();
         switch (label) {
-            case "radarr":
-                return ServiceType.Sonarr;
-            case "sonarr":
-                return ServiceType.Sonarr;
+            case "mysql":
+                return ServiceType.MySql;
             case "mongo":
             case "mongodb":
                 return ServiceType.Mongo;
