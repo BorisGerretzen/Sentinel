@@ -10,35 +10,35 @@ public class HttpScanner : Scanner {
     protected override List<int> Ports { get; }
 
     public override async Task<Dictionary<int, Response>> Scan() {
-        var scannerParams = (HttpScannerParams)ScannerParams;
+        HttpScannerParams scannerParams = (HttpScannerParams)ScannerParams;
         var returnDict = new Dictionary<int, Response>();
 
         var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
-        
-        var handler = new HttpClientHandler {
+
+        HttpClientHandler handler = new() {
             AllowAutoRedirect = true,
             MaxAutomaticRedirections = 5
         };
-        var client = new HttpClient(handler);
+        HttpClient client = new(handler);
         foreach (var port in openPorts) {
             var url = $"https://{scannerParams.Domain}:{port}";
             try {
-                var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url));
-                int statusCode = (int)response.StatusCode;
-                
+                HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url));
+                var statusCode = (int)response.StatusCode;
+
                 // Check status code according to settings
                 switch (scannerParams.StatusCodesGood) {
                     case HttpScannerParams.StatusCodes.Ok:
-                        if(statusCode != 200)
+                        if (statusCode != 200)
                             goto Finished;
                         break;
                     case HttpScannerParams.StatusCodes.Under300:
-                        if(statusCode >= 300)
+                        if (statusCode >= 300)
                             goto Finished;
                         break;
                 }
 
-                var httpResponse = new HttpResponse {
+                HttpResponse httpResponse = new() {
                     StatusCode = statusCode,
                     TextResponse = response.Headers.ToString()
                 };
@@ -47,7 +47,7 @@ public class HttpScanner : Scanner {
             catch (Exception e) {
                 // ignored
             }
-            
+
             // Ew goto
             Finished: ;
         }

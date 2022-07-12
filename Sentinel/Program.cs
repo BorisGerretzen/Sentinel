@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using Certstream;
+﻿using Certstream;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using SentinelLib.Models;
 
-var storageClient = new MongoClient("mongodb://127.0.0.1:27017/?directConnection=true");
-var storageDb = storageClient.GetDatabase("Scans");
+MongoClient storageClient = new("mongodb://127.0.0.1:27017/?directConnection=true");
+IMongoDatabase? storageDb = storageClient.GetDatabase("Scans");
 var storageCollection = storageDb.GetCollection<ScannerOutput>("ScannerOutput");
 
 async Task ResponseCallback(ScannerOutput param) {
@@ -26,13 +25,12 @@ async Task ResponseCallback(ScannerOutput param) {
     // elasticClient.Index(param, null);
 }
 
-object workLock = new object();
-bool doWork = true;
+var workLock = new object();
+var doWork = true;
 
-Thread certThread = new Thread(() => {
+Thread certThread = new(() => {
     SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
-    var client = new CertstreamClient(-1);
-    Stopwatch stopwatch = new();
+    CertstreamClient client = new(-1);
     client.CertificateIssued += (_, cert) => {
         lock (workLock) {
             if (!doWork) client.Stop();
@@ -47,7 +45,7 @@ Thread certThread = new Thread(() => {
             var label = split[0];
 
             // Get servicetype
-            var serviceType = Helpers.StringToServiceType(label);
+            ServiceType serviceType = Helpers.StringToServiceType(label);
             if (serviceType == ServiceType.None) continue;
 
             switch (serviceType) {
@@ -63,11 +61,11 @@ Thread certThread = new Thread(() => {
             }
         }
     };
+    Console.WriteLine("Sentinel has been initialized");
     client.Start();
-    stopwatch.Start();
 });
 
-Thread localHostThread = new Thread(() => {
+Thread localHostThread = new(() => {
     SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
     sentinel.AddWork(new ScannerParams("127.0.0.1", ServiceType.Mongo));
 });

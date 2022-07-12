@@ -27,7 +27,7 @@ public abstract class Scanner {
         Dictionary<int, bool> returnDict = new();
 
         foreach (var port in Ports) {
-            using var client = new TcpClient();
+            using TcpClient client = new();
             try {
                 await client.ConnectAsync(ScannerParams.Domain, port);
                 returnDict[port] = true;

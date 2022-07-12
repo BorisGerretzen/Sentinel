@@ -1,10 +1,16 @@
 ﻿using System.Runtime.Caching;
 using SentinelLib.Models;
+using SentinelLib.Scanners;
 
 namespace SentinelLib;
 
 public class Sentinel {
     public delegate Task ResponseCallback(ScannerOutput response);
+
+    /// <summary>
+    ///     True if caching should be enabled.
+    /// </summary>
+    private readonly bool _cache;
 
     /// <summary>
     ///     Function that should be called when an accessible domain has been identified.
@@ -25,11 +31,6 @@ public class Sentinel {
     ///     The cache that holds the recently scanned domains.
     /// </summary>
     private readonly MemoryCache _workCache = new("work");
-
-    /// <summary>
-    ///     True if caching should be enabled.
-    /// </summary>
-    private readonly bool _cache;
 
     /// <summary>
     ///     Creates a new sentinel object.
@@ -92,9 +93,9 @@ public class Sentinel {
     /// <param name="work">The work to be done.</param>
     private async Task Run(ScannerParams work) {
         if (!DoCache(work.Domain)) return;
-        
+
         await _semaphore.WaitAsync();
-        var scanner = _scannerProvider.Instantiate(work);
+        Scanner scanner = _scannerProvider.Instantiate(work);
         PrintSafe($"[{work.Domain}] {$"Starting scan for type '{work.ServiceType}'",-20}");
         var responses = await scanner.Scan();
         _semaphore.Release();
@@ -102,7 +103,7 @@ public class Sentinel {
         PrintSafe($"[{work.Domain}] {"Scan completed",-30}");
         if (responses.Count == 0) return;
         PrintSafe($"[{work.Domain}] {$"Accessible on {responses.Count} port{(responses.Count > 1 ? "s" : string.Empty)}",-30}");
-        var output = new ScannerOutput {
+        ScannerOutput output = new() {
             Responses = responses,
             InputParams = work
         };

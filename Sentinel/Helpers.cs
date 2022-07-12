@@ -1,4 +1,4 @@
-﻿namespace Sentinel; 
+﻿namespace Sentinel;
 
 public static class Helpers {
     public static ServiceType StringToServiceType(string label) {

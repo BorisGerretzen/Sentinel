@@ -2,7 +2,7 @@
 
 public static class Generic {
     public static void ForEach<T>(this T[] arr, Action<T> action) {
-        foreach (var elem in arr)
+        foreach (T elem in arr)
             action(elem);
     }
 }
