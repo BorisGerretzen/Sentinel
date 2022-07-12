@@ -25,7 +25,6 @@ public sealed class ScannerProvider {
     ///     Instantiates a new scanner according to the name presented.
     ///     Name is case insensitive.
     /// </summary>
-    /// <param name="serviceType">The service of the scanner.</param>
     /// <param name="scannerParams">Parameters for invoking the scanner.</param>
     /// <returns>Instantiated scanner</returns>
     public Scanner Instantiate(ScannerParams scannerParams) {

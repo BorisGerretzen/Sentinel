@@ -4,14 +4,14 @@ using SentinelLib.Models;
 namespace SentinelLib.Scanners;
 
 public abstract class Scanner {
-    protected readonly ScannerParams _scannerParams;
+    protected readonly ScannerParams ScannerParams;
 
     /// <summary>
     ///     Creates a new scanner object.
     /// </summary>
     /// <param name="scannerParams">Parameters for the host to scan.</param>
     protected Scanner(ScannerParams scannerParams) {
-        _scannerParams = scannerParams;
+        ScannerParams = scannerParams;
     }
 
     /// <summary>
@@ -20,7 +20,7 @@ public abstract class Scanner {
     protected abstract List<int> Ports { get; }
 
     /// <summary>
-    ///     Scans a list of ports for the domain in this object's <see cref="ScannerParams" />.
+    ///     Scans a list of ports for the domain in this object's <see cref="Models.ScannerParams" />.
     /// </summary>
     /// <returns>Dictionary containing the port and the status (open/closed).</returns>
     protected async Task<Dictionary<int, bool>> ScanPorts() {
@@ -29,7 +29,7 @@ public abstract class Scanner {
         foreach (var port in Ports) {
             using var client = new TcpClient();
             try {
-                await client.ConnectAsync(_scannerParams.Domain, port);
+                await client.ConnectAsync(ScannerParams.Domain, port);
                 returnDict[port] = true;
             }
             catch {
@@ -41,7 +41,7 @@ public abstract class Scanner {
     }
 
     /// <summary>
-    ///     Scans the host specified in this object's <see cref="ScannerParams" />
+    ///     Scans the host specified in this object's <see cref="Models.ScannerParams" />
     /// </summary>
     /// <returns>Dictionary containing the port and the status of the service.</returns>
     public abstract Task<Dictionary<int, Response>> Scan();

@@ -56,7 +56,7 @@ public class Sentinel {
     /// </summary>
     /// <param name="scannerParams">The work to be done.</param>
     public void AddWork(ScannerParams scannerParams) {
-        Task.Run(() => Run(scannerParams));
+        Task.Run(async () => await Run(scannerParams));
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class Sentinel {
     ///     Instantiates a scanner according to the <see cref="ServiceType" /> and runs the scan.
     /// </summary>
     /// <param name="work">The work to be done.</param>
-    private async void Run(ScannerParams work) {
+    private async Task Run(ScannerParams work) {
         if (!DoCache(work.Domain)) return;
         
         await _semaphore.WaitAsync();

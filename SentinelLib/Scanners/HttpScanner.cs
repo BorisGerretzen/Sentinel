@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using SentinelLib.Models;
+﻿using SentinelLib.Models;
 
 namespace SentinelLib.Scanners;
 
@@ -11,7 +10,7 @@ public class HttpScanner : Scanner {
     protected override List<int> Ports { get; }
 
     public override async Task<Dictionary<int, Response>> Scan() {
-        var scannerParams = (HttpScannerParams)_scannerParams;
+        var scannerParams = (HttpScannerParams)ScannerParams;
         var returnDict = new Dictionary<int, Response>();
 
         var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();

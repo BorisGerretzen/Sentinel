@@ -32,7 +32,6 @@ bool doWork = true;
 Thread certThread = new Thread(() => {
     SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
     var client = new CertstreamClient(-1);
-    ulong numdomains = 0;
     Stopwatch stopwatch = new();
     client.CertificateIssued += (_, cert) => {
         lock (workLock) {
@@ -41,7 +40,6 @@ Thread certThread = new Thread(() => {
 
         foreach (var domain in cert.AllDomains) {
             if (string.IsNullOrEmpty(domain)) continue;
-            numdomains++;
 
             // get label
             var split = domain.Split('.');
@@ -51,12 +49,7 @@ Thread certThread = new Thread(() => {
             // Get servicetype
             var serviceType = Helpers.StringToServiceType(label);
             if (serviceType == ServiceType.None) continue;
-            // lock (client) {
-            //     Console.Write($"{domain,-100}" +
-            //                   $"{numdomains,-20}" +
-            //                   $"{Math.Round(numdomains / (stopwatch.ElapsedMilliseconds / 1000f)),-10}" +
-            //                   $"{DateTime.Now,-15}\n");
-            // }
+
             switch (serviceType) {
                 case ServiceType.ElasticSearch:
                     sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 9200 }));
