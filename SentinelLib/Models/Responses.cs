@@ -1,12 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace SentinelLib.Models;
 
 [JsonObject(MemberSerialization.OptOut)]
 public class Response {
-    public string? TextResponse { get; set; }
-    public JToken? JsonResponse { get; set; }
+    [BsonIgnoreIfNull] public string? TextResponse { get; set; }
+
+    [BsonIgnoreIfNull] public JToken? JsonResponse { get; set; }
 }
 
 [JsonObject(MemberSerialization.OptOut)]

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace SentinelLib.Models;
@@ -7,7 +9,7 @@ namespace SentinelLib.Models;
 public class ScannerParams {
     public string Domain;
 
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))] [BsonRepresentation(BsonType.String)]
     public ServiceType ServiceType;
 
     public ScannerParams(string domain, ServiceType serviceType) {

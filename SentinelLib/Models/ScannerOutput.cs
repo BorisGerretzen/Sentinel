@@ -9,5 +9,6 @@ public class ScannerOutput {
     public ScannerParams? InputParams { get; set; }
 
     [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+    [BsonIgnoreIfNull]
     public Dictionary<int, Response>? Responses { get; set; }
 }

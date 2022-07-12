@@ -13,18 +13,18 @@ public class MySqlScanner : Scanner {
     public override async Task<Dictionary<int, Response>> Scan() {
         var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key);
         Dictionary<int, Response> returnDict = new();
-        JObject jobject = new();
+        JObject jObject = new();
         var enumerable = openPorts.ToList();
         foreach (var username in new List<string> { "test", "root" })
         foreach (var port in enumerable)
             try {
                 // Connect to server
                 var cs = $@"server={ScannerParams.Domain}:{port};userid={username};";
-                using MySqlConnection conn = new(cs);
+                await using MySqlConnection conn = new(cs);
                 await conn.OpenAsync();
-                jobject.Add("version", conn.ServerVersion);
+                jObject.Add("version", conn.ServerVersion);
                 returnDict[port] = new Response {
-                    JsonResponse = jobject
+                    JsonResponse = jObject
                 };
 
                 // Get databases
@@ -33,12 +33,12 @@ public class MySqlScanner : Scanner {
                 List<string> databases = new();
                 while (await reader.ReadAsync()) databases.Add(reader.GetString(0));
 
-                jobject = new JObject {
+                jObject = new JObject {
                     { "version", conn.ServerVersion },
                     { "databases", JArray.FromObject(databases) }
                 };
                 returnDict[port] = new Response {
-                    JsonResponse = jobject
+                    JsonResponse = jObject
                 };
             }
             catch (Exception e) {

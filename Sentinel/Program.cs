@@ -44,7 +44,7 @@ Thread certThread = new(() => {
             if (split.Length <= 2) continue;
             var label = split[0];
 
-            // Get servicetype
+            // Get ServiceType
             ServiceType serviceType = Helpers.StringToServiceType(label);
             if (serviceType == ServiceType.None) continue;
 

@@ -7,7 +7,7 @@ public sealed class ScannerProvider {
     /// <summary>
     ///     Default ScannerProvider
     /// </summary>
-    public static ScannerProvider DefaultProvider = new();
+    public static readonly ScannerProvider DefaultProvider = new();
 
     private readonly Dictionary<ServiceType, Func<ScannerParams, Scanner>> _registeredScanners = new();
 
