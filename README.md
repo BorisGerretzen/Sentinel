@@ -10,6 +10,13 @@ Currently, the following services are supported:
 - Mysql
 - It is possible to add more services/labels by registering them in SentinelLib.
 
+## Instructions
+1. Connect to a VPN, this is not required but recommended so your IP does not show up in any logs.
+2. Download and install MongoDB, make sure authentication is disabled and the server is listening on `127.0.0.1`.
+3. Restore Nuget packages and build solution.
+4. Run built executable.
+5. Wait...
+
 ## How it works
 Sentinel uses [certstream](https://certstream.calidog.io) to get a live feed of certificates added to CT logs. It extracts the domain names from these certificates and checks the first label of these domain names.
 If the label is one of the recognized labels, a connection is attempted with a client of the corresponding service.
@@ -28,4 +35,12 @@ During my research I found that a considerable percentage of services that annou
 
 My thesis used an older dataset, specifically the Google Argon 2021 dataset. 
 Because this is a relatively old dataset, a lot of the domains listed no longer exist or the owners had time to fix their mistakes. 
-This got me curious what differences could be observed when using more recent, near realtime CT logs. 
+This got me curious what differences could be observed when using more recent, near realtime CT logs.
+
+## Future work
+- [ ] Increased result handling flexibility e.g. config for MongoDB instance.
+- [ ] More configuration options 
+- [ ] Callback for open ports, regardless of scan result
+- [ ] CI/CD
+- [ ] Better logging
+- [ ] Nuget package of SentinelLib

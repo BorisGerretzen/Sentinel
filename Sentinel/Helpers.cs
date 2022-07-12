@@ -4,6 +4,8 @@ public static class Helpers {
     public static ServiceType StringToServiceType(string label) {
         label = label.ToLower();
         switch (label) {
+            case "ftp":
+                return ServiceType.Ftp;
             case "mysql":
                 return ServiceType.MySql;
             case "mongo":

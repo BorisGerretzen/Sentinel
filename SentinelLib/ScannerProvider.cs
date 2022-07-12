@@ -19,6 +19,7 @@ public sealed class ScannerProvider {
         Register(ServiceType.MongoExpress, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
         Register(ServiceType.ElasticSearch, scannerParams => new HttpScanner((HttpScannerParams)scannerParams));
         Register(ServiceType.MySql, scannerParams => new MySqlScanner(scannerParams));
+        Register(ServiceType.Ftp, scannerParams => new FtpScanner(scannerParams));
     }
 
     /// <summary>

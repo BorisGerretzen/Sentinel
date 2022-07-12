@@ -11,7 +11,7 @@ public class HttpScanner : Scanner {
 
     public override async Task<Dictionary<int, Response>> Scan() {
         HttpScannerParams scannerParams = (HttpScannerParams)ScannerParams;
-        var returnDict = new Dictionary<int, Response>();
+        Dictionary<int, Response> returnDict = new();
 
         var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 

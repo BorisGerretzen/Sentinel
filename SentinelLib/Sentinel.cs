@@ -63,10 +63,11 @@ public class Sentinel {
     /// <summary>
     ///     Safely prints content to the output.
     /// </summary>
+    /// <param name="domain">The domain name related to the message.</param>
     /// <param name="content">The content to print.</param>
-    private void PrintSafe(string content) {
+    private void PrintSafe(string domain, string content) {
         lock (_scannerProvider) {
-            Console.WriteLine(content);
+            Console.WriteLine($"[{domain}] {content}");
         }
     }
 
@@ -79,7 +80,7 @@ public class Sentinel {
     private bool DoCache(string domain) {
         if (!_cache) return true;
         if (_workCache.Contains(domain)) {
-            PrintSafe($"[{domain}] {"Domain was found in cache, skipping",-30}");
+            PrintSafe(domain, "Domain was found in cache, skipping");
             return false;
         }
 
@@ -96,13 +97,13 @@ public class Sentinel {
 
         await _semaphore.WaitAsync();
         Scanner scanner = _scannerProvider.Instantiate(work);
-        PrintSafe($"[{work.Domain}] {$"Starting scan for type '{work.ServiceType}'",-20}");
+        PrintSafe(work.Domain, $"Starting scan for type '{work.ServiceType}'");
         var responses = await scanner.Scan();
         _semaphore.Release();
 
-        PrintSafe($"[{work.Domain}] {"Scan completed",-30}");
+        PrintSafe(work.Domain, "Scan completed");
         if (responses.Count == 0) return;
-        PrintSafe($"[{work.Domain}] {$"Accessible on {responses.Count} port{(responses.Count > 1 ? "s" : string.Empty)}",-30}");
+        PrintSafe(work.Domain, $"Accessible on {responses.Count} port{(responses.Count > 1 ? "s" : string.Empty)}");
         ScannerOutput output = new() {
             Responses = responses,
             InputParams = work

@@ -5,5 +5,6 @@ public enum ServiceType {
     MongoExpress,
     ElasticSearch,
     MySql,
+    Ftp,
     None
 }
