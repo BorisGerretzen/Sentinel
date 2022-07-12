@@ -67,7 +67,7 @@ Thread certThread = new(() => {
 
 Thread localHostThread = new(() => {
     SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
-    sentinel.AddWork(new ScannerParams("127.0.0.1", ServiceType.Mongo));
+    sentinel.AddWork(new ScannerParams("127.0.0.1", ServiceType.Ftp));
 });
 certThread.Start();
 Console.ReadLine();

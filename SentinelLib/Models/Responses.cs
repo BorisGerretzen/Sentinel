@@ -7,6 +7,7 @@ namespace SentinelLib.Models;
 [JsonObject(MemberSerialization.OptOut)]
 public class Response {
     [BsonIgnoreIfNull] public string? TextResponse { get; set; }
+    [BsonIgnoreIfNull] public string? ErrorResponse { get; set; }
 
     [BsonIgnoreIfNull] public JToken? JsonResponse { get; set; }
 }
