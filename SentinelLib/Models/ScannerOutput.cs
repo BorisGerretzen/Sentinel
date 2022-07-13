@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using Newtonsoft.Json;
+using SentinelLib.Models.ScannerParams;
 
 namespace SentinelLib.Models;
 

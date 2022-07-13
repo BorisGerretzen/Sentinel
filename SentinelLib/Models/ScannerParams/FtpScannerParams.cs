@@ -1,4 +1,4 @@
-﻿namespace SentinelLib.Models;
+﻿namespace SentinelLib.Models.ScannerParams;
 
 public class FtpScannerParams<TEnum> : StandardScannerParams<TEnum> where TEnum : Enum {
     /// <summary>

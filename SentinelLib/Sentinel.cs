@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Caching;
 using SentinelLib.Models;
+using SentinelLib.Models.ScannerParams;
 using SentinelLib.ScannerProviders;
 using SentinelLib.Scanners;
 

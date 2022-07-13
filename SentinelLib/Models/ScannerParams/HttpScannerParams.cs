@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SentinelLib.Scanners;
 
-namespace SentinelLib.Models;
+namespace SentinelLib.Models.ScannerParams;
 
 [JsonObject(MemberSerialization.OptOut)]
 public class HttpScannerParams<TEnum> : StandardScannerParams<TEnum> where TEnum : Enum {

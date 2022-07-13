@@ -1,4 +1,4 @@
-﻿using SentinelLib.Models;
+﻿using SentinelLib.Models.ScannerParams;
 using SentinelLib.Scanners;
 
 namespace SentinelLib.ScannerProviders;

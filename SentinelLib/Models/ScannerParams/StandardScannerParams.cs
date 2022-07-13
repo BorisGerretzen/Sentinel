@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SentinelLib.Models;
+namespace SentinelLib.Models.ScannerParams;
 
 /// <summary>
 ///     Standard parameters that are passed to a scanner.

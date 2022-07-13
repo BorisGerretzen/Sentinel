@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using SentinelLib.Models;
+using SentinelLib.Models.ScannerParams;
 
 namespace SentinelLib.Scanners;
 

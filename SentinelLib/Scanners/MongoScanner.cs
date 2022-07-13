@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using SentinelLib.Models;
+using SentinelLib.Models.ScannerParams;
 
 namespace SentinelLib.Scanners;
 

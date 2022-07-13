@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using SentinelLib.Models;
+using SentinelLib.Models.ScannerParams;
 using SentinelLib.ScannerProviders;
 
 MongoClient storageClient = new("mongodb://127.0.0.1:27017/?directConnection=true");
