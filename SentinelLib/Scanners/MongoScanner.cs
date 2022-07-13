@@ -5,10 +5,15 @@ using SentinelLib.Models;
 
 namespace SentinelLib.Scanners;
 
-public class MongoScanner : Scanner {
-    public MongoScanner(ScannerParams scannerParams) : base(scannerParams) { }
+public class MongoScanner<TEnum> : AbstractScanner<StandardScannerParams<TEnum>, TEnum> where TEnum : Enum {
+    public MongoScanner(StandardScannerParams<TEnum> scannerParams) : base(scannerParams) { }
     protected override List<int> Ports => new() { 27017 };
 
+    /// <summary>
+    ///     Transforms a list of <see cref="BsonDocument" /> to a <see cref="JArray" /> that can be returned in a
+    ///     <see cref="Response" />.
+    /// </summary>
+    /// <param name="databases">List of databases.</param>
     private JArray TransformData(List<BsonDocument> databases) {
         JArray jArray = new();
         foreach (BsonDocument database in databases) {

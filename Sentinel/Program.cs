@@ -2,12 +2,13 @@
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using SentinelLib.Models;
+using SentinelLib.ScannerProviders;
 
 MongoClient storageClient = new("mongodb://127.0.0.1:27017/?directConnection=true");
 IMongoDatabase? storageDb = storageClient.GetDatabase("Scans");
-var storageCollection = storageDb.GetCollection<ScannerOutput>("ScannerOutput");
+var storageCollection = storageDb.GetCollection<ScannerOutput<ServiceType>>("ScannerOutput");
 
-async Task ResponseCallback(ScannerOutput param) {
+async Task ResponseCallback(ScannerOutput<ServiceType> param) {
     var json = JsonConvert.SerializeObject(
         param,
         Formatting.Indented,
@@ -29,8 +30,9 @@ var workLock = new object();
 var doWork = true;
 
 Thread certThread = new(() => {
-    SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
+    Sentinel<ServiceType> sentinel = new(DefaultScannerProvider.Provider, ResponseCallback);
     CertstreamClient client = new(-1);
+
     client.CertificateIssued += (_, cert) => {
         lock (workLock) {
             if (!doWork) client.Stop();
@@ -47,16 +49,15 @@ Thread certThread = new(() => {
             // Get ServiceType
             ServiceType serviceType = Helpers.StringToServiceType(label);
             if (serviceType == ServiceType.None) continue;
-
             switch (serviceType) {
                 case ServiceType.ElasticSearch:
-                    sentinel.AddWork(new HttpScannerParams(domain, serviceType, new List<int> { 9200 }));
+                    sentinel.AddWork(new HttpScannerParams<ServiceType>(domain, serviceType, new List<int> { 9200 }));
                     break;
                 case ServiceType.MongoExpress:
-                    sentinel.AddWork(new HttpScannerParams(domain, serviceType));
+                    sentinel.AddWork(new HttpScannerParams<ServiceType>(domain, serviceType));
                     break;
                 default:
-                    sentinel.AddWork(new ScannerParams(domain, serviceType));
+                    sentinel.AddWork(new StandardScannerParams<ServiceType>(domain, serviceType));
                     break;
             }
         }
@@ -66,8 +67,8 @@ Thread certThread = new(() => {
 });
 
 Thread localHostThread = new(() => {
-    SentinelLib.Sentinel sentinel = new(ScannerProvider.DefaultProvider, ResponseCallback);
-    sentinel.AddWork(new ScannerParams("127.0.0.1", ServiceType.Ftp));
+    Sentinel<ServiceType> sentinel = new(DefaultScannerProvider.Provider, ResponseCallback);
+    sentinel.AddWork(new StandardScannerParams<ServiceType>("127.0.0.1", ServiceType.Ftp));
 });
 certThread.Start();
 Console.ReadLine();

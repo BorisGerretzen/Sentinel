@@ -1,11 +1,15 @@
 ﻿using System.Runtime.Caching;
 using SentinelLib.Models;
+using SentinelLib.ScannerProviders;
 using SentinelLib.Scanners;
 
 namespace SentinelLib;
 
-public class Sentinel {
-    public delegate Task ResponseCallback(ScannerOutput response);
+public class Sentinel<TEnum> where TEnum : Enum {
+    /// <summary>
+    ///     Delegate type for the response callback.
+    /// </summary>
+    public delegate Task ResponseCallback(ScannerOutput<TEnum> response);
 
     /// <summary>
     ///     True if caching should be enabled.
@@ -20,7 +24,7 @@ public class Sentinel {
     /// <summary>
     ///     Provider for the various scanner types.
     /// </summary>
-    private readonly ScannerProvider _scannerProvider;
+    private readonly ScannerProvider<StandardScannerParams<TEnum>, TEnum> _scannerProvider;
 
     /// <summary>
     ///     Semaphore for limiting the maximum number of concurrent connections.
@@ -39,13 +43,13 @@ public class Sentinel {
     ///         ignore duplicates.
     ///     </remarks>
     /// </summary>
-    /// <param name="scannerProvider">The <see cref="ScannerProvider" /> to use.</param>
+    /// <param name="scannerProvider">The <see cref="ScannerProvider{T,TS}" /> to use.</param>
     /// <param name="responseCallback">
     ///     Method with signature of <see cref="ResponseCallback" /> that gets called when a domain
     ///     has been successfully scanned to be accessible.
     /// </param>
     /// <param name="cache">True if domain caching should be used.</param>
-    public Sentinel(ScannerProvider scannerProvider, ResponseCallback responseCallback, bool cache = true) {
+    public Sentinel(ScannerProvider<StandardScannerParams<TEnum>, TEnum> scannerProvider, ResponseCallback responseCallback, bool cache = true) {
         _scannerProvider = scannerProvider;
         _responseCallback = responseCallback;
         _semaphore = new SemaphoreSlim(200, 200);
@@ -56,7 +60,7 @@ public class Sentinel {
     ///     Adds work to the sentinel.
     /// </summary>
     /// <param name="scannerParams">The work to be done.</param>
-    public void AddWork(ScannerParams scannerParams) {
+    public void AddWork(StandardScannerParams<TEnum> scannerParams) {
         Task.Run(async () => await Run(scannerParams));
     }
 
@@ -92,11 +96,11 @@ public class Sentinel {
     ///     Instantiates a scanner according to the <see cref="ServiceType" /> and runs the scan.
     /// </summary>
     /// <param name="work">The work to be done.</param>
-    private async Task Run(ScannerParams work) {
+    private async Task Run(StandardScannerParams<TEnum> work) {
         if (!DoCache(work.Domain)) return;
 
         await _semaphore.WaitAsync();
-        Scanner scanner = _scannerProvider.Instantiate(work);
+        IScanner scanner = _scannerProvider.Instantiate(work);
         PrintSafe(work.Domain, $"Starting scan for type '{work.ServiceType}'");
         var responses = await scanner.Scan();
         _semaphore.Release();
@@ -104,7 +108,7 @@ public class Sentinel {
         PrintSafe(work.Domain, "Scan completed");
         if (responses.Count == 0) return;
         PrintSafe(work.Domain, $"Accessible on {responses.Count} port{(responses.Count > 1 ? "s" : string.Empty)}");
-        ScannerOutput output = new() {
+        ScannerOutput<TEnum> output = new() {
             Responses = responses,
             InputParams = work
         };

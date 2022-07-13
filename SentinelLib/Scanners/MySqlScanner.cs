@@ -5,8 +5,8 @@ using SentinelLib.Models;
 
 namespace SentinelLib.Scanners;
 
-public class MySqlScanner : Scanner {
-    public MySqlScanner(ScannerParams scannerParams) : base(scannerParams) { }
+public class MySqlScanner<TEnum> : AbstractScanner<StandardScannerParams<TEnum>, TEnum> where TEnum : Enum {
+    public MySqlScanner(StandardScannerParams<TEnum> scannerParams) : base(scannerParams) { }
 
     protected override List<int> Ports => new() { 3306 };
 
