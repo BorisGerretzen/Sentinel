@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -28,8 +29,39 @@ public class Response {
     /// <summary>
     ///     Json response from the connection attempt.
     /// </summary>
+    [BsonIgnore]
+    public JObject? JsonResponse { get; set; }
+
+    /// <summary>
+    /// Bson version of <see cref="JsonResponse"/>, can be stored in MongoDB.
+    /// </summary>
     [BsonIgnoreIfNull]
-    public JToken? JsonResponse { get; set; }
+    [JsonIgnore]
+    public object? BsonResponse {
+        get => JsonResponse == null ? null : BsonTypeMapper.MapToBsonValue(ToObject(JsonResponse));
+        set => JsonResponse = value == null ? null : JObject.FromObject(value);
+    }
+
+    /// <summary>
+    ///     Used to convert a JToken to a .NET object.
+    ///     This can then be used to convert to a Bson value to use with MongoDB.
+    /// </summary>
+    /// <param name="token">JToken to convert.</param>
+    /// <returns>Native .net object.</returns>
+    protected static object? ToObject(JToken token) {
+        switch (token.Type) {
+            case JTokenType.Object:
+                return token.Children<JProperty>()
+                    .ToDictionary(prop => prop.Name,
+                        prop => ToObject(prop.Value));
+
+            case JTokenType.Array:
+                return token.Select(ToObject).ToList();
+
+            default:
+                return ((JValue)token).Value;
+        }
+    }
 }
 
 [JsonObject(MemberSerialization.OptOut)]

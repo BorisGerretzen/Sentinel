@@ -32,9 +32,11 @@ public class MongoScanner<TEnum> : AbstractScanner<StandardScannerParams<TEnum>,
             try {
                 MongoClient client = new($"mongodb://{ScannerParams.Domain}:{port}/db?directConnection=true");
                 var databases = (await client.ListDatabasesAsync()).ToList();
+                if (databases == null) continue;
+
                 if (databases is not null)
                     returnDict[port] = new Response {
-                        JsonResponse = TransformData(databases)
+                        JsonResponse = new JObject { { "databases", TransformData(databases) } }
                     };
             }
             catch (Exception e) {

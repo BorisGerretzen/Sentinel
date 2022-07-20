@@ -57,6 +57,9 @@ Thread certThread = new(() => {
                 case ServiceType.MongoExpress:
                     sentinel.AddWork(new HttpScannerParams<ServiceType>(domain, serviceType));
                     break;
+                case ServiceType.Ftp:
+                    sentinel.AddWork(new FtpScannerParams<ServiceType>(domain, serviceType));
+                    break;
                 default:
                     sentinel.AddWork(new StandardScannerParams<ServiceType>(domain, serviceType));
                     break;
@@ -69,7 +72,7 @@ Thread certThread = new(() => {
 
 Thread localHostThread = new(() => {
     Sentinel<ServiceType> sentinel = new(DefaultScannerProvider.Provider, ResponseCallback);
-    sentinel.AddWork(new StandardScannerParams<ServiceType>("127.0.0.1", ServiceType.Ftp));
+    sentinel.AddWork(new StandardScannerParams<ServiceType>("127.0.0.1", ServiceType.Mongo));
 });
 certThread.Start();
 Console.ReadLine();

@@ -1,5 +1,8 @@
-﻿namespace SentinelLib.Models.ScannerParams;
+﻿using Newtonsoft.Json;
 
+namespace SentinelLib.Models.ScannerParams;
+
+[JsonObject(MemberSerialization.OptOut)]
 public class FtpScannerParams<TEnum> : StandardScannerParams<TEnum> where TEnum : Enum {
     /// <summary>
     ///     If empty response should be seen as successful.

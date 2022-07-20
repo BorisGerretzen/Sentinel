@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace SentinelLib.Models.ScannerParams;
 
@@ -26,5 +29,7 @@ public class StandardScannerParams<TEnum> where TEnum : Enum {
     /// <summary>
     ///     The service with which the connection attempt will be made.
     /// </summary>
+    [BsonRepresentation(BsonType.String)]
+    [JsonConverter(typeof(StringEnumConverter))]
     public TEnum ServiceType { get; set; }
 }

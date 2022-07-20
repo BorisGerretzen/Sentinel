@@ -13,7 +13,7 @@ public class FtpScanner<TEnum> : AbstractScanner<FtpScannerParams<TEnum>, TEnum>
     ///     Scans an FTP server.
     /// </summary>
     /// <param name="ssl">True if SSL should be enabled.</param>
-    private async Task<Response> ScanFtp(bool ssl) {
+    private async Task<Response?> ScanFtp(bool ssl) {
         FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://{ScannerParams.Domain}");
         request.Method = WebRequestMethods.Ftp.ListDirectory;
         request.Credentials = new NetworkCredential("anonymous", $"anonymous@{ScannerParams.Domain}");
@@ -30,7 +30,7 @@ public class FtpScanner<TEnum> : AbstractScanner<FtpScannerParams<TEnum>, TEnum>
         StreamReader reader = new(stream);
         var content = await reader.ReadToEndAsync();
 
-        if (content == ".\r\n..\r\n") { }
+        if (content is ".\r\n..\r\n" or "..\r\n.\r\n" && !ScannerParams.ShowEmpty) return null;
 
         // Return
         return new Response {
@@ -47,8 +47,9 @@ public class FtpScanner<TEnum> : AbstractScanner<FtpScannerParams<TEnum>, TEnum>
                 Response? result = null;
                 if (port == 22) result = await ScanFtp(true);
                 if (port == 21) result = await ScanFtp(false);
+                if (result == null) continue;
 
-                returnDict[port] = result ?? throw new InvalidOperationException($"Unknown port {port} for this service");
+                returnDict[port] = result;
             }
             catch (Exception e) {
                 // do nothing

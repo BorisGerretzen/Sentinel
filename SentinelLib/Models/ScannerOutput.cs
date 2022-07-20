@@ -11,6 +11,10 @@ namespace SentinelLib.Models;
 /// <typeparam name="TEnum">Enum to indicate service type.</typeparam>
 [JsonObject(MemberSerialization.OptOut)]
 public class ScannerOutput<TEnum> where TEnum : Enum {
+    public ScannerOutput() {
+        ScanTime = DateTime.Now;
+    }
+
     /// <summary>
     ///     The input parameters that resulted in the scan result.
     /// </summary>
@@ -22,4 +26,9 @@ public class ScannerOutput<TEnum> where TEnum : Enum {
     [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
     [BsonIgnoreIfNull]
     public Dictionary<int, Response>? Responses { get; set; }
+
+    /// <summary>
+    ///     Time the result is generated.
+    /// </summary>
+    public DateTime ScanTime { get; set; }
 }

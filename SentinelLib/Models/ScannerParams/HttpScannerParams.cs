@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SentinelLib.Scanners;
 
 namespace SentinelLib.Models.ScannerParams;
@@ -19,6 +22,7 @@ public class HttpScannerParams<TEnum> : StandardScannerParams<TEnum> where TEnum
     /// <summary>
     ///     Response codes that are seen as successful.
     /// </summary>
+    [BsonRepresentation(BsonType.String)] [JsonConverter(typeof(StringEnumConverter))]
     public StatusCodes StatusCodesGood;
 
     /// <summary>

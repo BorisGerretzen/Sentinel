@@ -89,7 +89,7 @@ public class Sentinel<TEnum> where TEnum : Enum {
             return false;
         }
 
-        _workCache.Add(domain, "aa", DateTimeOffset.Now.AddMinutes(2));
+        _workCache.Add(domain, "aa", DateTimeOffset.Now.AddMinutes(15));
         return true;
     }
 
