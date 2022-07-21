@@ -29,21 +29,24 @@ public abstract class AbstractScanner<TScannerParams, TEnum> : IScanner where TS
     /// <summary>
     ///     Scans a list of ports for the domain in this object's <see cref="StandardScannerParams{TEnum}" />.
     /// </summary>
-    /// <returns>Dictionary containing the port and the status (open/closed).</returns>
-    protected async Task<Dictionary<int, bool>> ScanPorts() {
-        Dictionary<int, bool> returnDict = new();
+    /// <returns>List containing the open ports.</returns>
+    protected async Task<List<int>> ScanPorts() {
+        List<int> returnList = new();
 
         foreach (var port in Ports) {
             using TcpClient client = new();
             try {
                 await client.ConnectAsync(ScannerParams.Domain, port);
-                returnDict[port] = true;
+                returnList.Add(port);
             }
             catch {
-                returnDict[port] = false;
+                // do nothing
             }
         }
 
-        return returnDict;
+        if (ScannerParams.OpenPortCallback != null && returnList.Count > 0)
+            await ScannerParams.OpenPortCallback(returnList, ScannerParams);
+
+        return returnList;
     }
 }

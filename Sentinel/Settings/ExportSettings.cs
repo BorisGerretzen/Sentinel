@@ -1,6 +1,6 @@
-﻿namespace Sentinel;
+﻿namespace Sentinel.Settings;
 
-public class AppSettings {
+public class ExportSettings {
     public enum ExportTypes {
         Mongo,
         File,

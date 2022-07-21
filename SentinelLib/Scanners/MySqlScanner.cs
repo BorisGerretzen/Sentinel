@@ -12,7 +12,7 @@ public class MySqlScanner<TEnum> : AbstractScanner<StandardScannerParams<TEnum>,
     protected override List<int> Ports => new() { 3306 };
 
     public override async Task<Dictionary<int, Response>> Scan() {
-        var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key);
+        var openPorts = await ScanPorts();
         Dictionary<int, Response> returnDict = new();
         JObject jObject = new();
         var enumerable = openPorts.ToList();

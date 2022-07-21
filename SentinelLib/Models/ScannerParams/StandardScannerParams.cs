@@ -12,6 +12,11 @@ namespace SentinelLib.Models.ScannerParams;
 [JsonObject(MemberSerialization.OptOut)]
 public class StandardScannerParams<TEnum> where TEnum : Enum {
     /// <summary>
+    ///     This function should be called when open ports are found.
+    /// </summary>
+    [JsonIgnore] [BsonIgnore] internal Sentinel<TEnum>.OpenPortCallback? OpenPortCallback;
+
+    /// <summary>
     ///     Creates a new <see cref="StandardScannerParams{TEnum}" /> used to put a scanner to work.
     /// </summary>
     /// <param name="domain">The domain to scan.</param>

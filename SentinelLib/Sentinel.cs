@@ -8,6 +8,11 @@ namespace SentinelLib;
 
 public class Sentinel<TEnum> where TEnum : Enum {
     /// <summary>
+    ///     Delegate type for the callback that is called when open ports are found.
+    /// </summary>
+    public delegate Task OpenPortCallback(List<int> openPorts, StandardScannerParams<TEnum> inputParams);
+
+    /// <summary>
     ///     Delegate type for the response callback.
     /// </summary>
     public delegate Task ResponseCallback(ScannerOutput<TEnum> response);
@@ -18,9 +23,15 @@ public class Sentinel<TEnum> where TEnum : Enum {
     private readonly bool _cache;
 
     /// <summary>
+    ///     Function that should be called when an open port is found.
+    /// </summary>
+    private readonly OpenPortCallback? _openPortCallback;
+
+    /// <summary>
     ///     Function that should be called when an accessible domain has been identified.
     /// </summary>
     private readonly ResponseCallback _responseCallback;
+
 
     /// <summary>
     ///     Provider for the various scanner types.
@@ -50,7 +61,9 @@ public class Sentinel<TEnum> where TEnum : Enum {
     ///     has been successfully scanned to be accessible.
     /// </param>
     /// <param name="cache">True if domain caching should be used.</param>
-    public Sentinel(ScannerProvider<StandardScannerParams<TEnum>, TEnum> scannerProvider, ResponseCallback responseCallback, bool cache = true) {
+    /// <param name="openPortCallback">Method with signature <see cref="OpenPortCallback"/> that gets called when open ports have been found for a domain.</param>
+    public Sentinel(ScannerProvider<StandardScannerParams<TEnum>, TEnum> scannerProvider, ResponseCallback responseCallback, OpenPortCallback? openPortCallback = null, bool cache = true) {
+        _openPortCallback = openPortCallback;
         _scannerProvider = scannerProvider;
         _responseCallback = responseCallback;
         _semaphore = new SemaphoreSlim(200, 200);
@@ -101,6 +114,7 @@ public class Sentinel<TEnum> where TEnum : Enum {
         if (!DoCache(work.Domain)) return;
 
         await _semaphore.WaitAsync();
+        work.OpenPortCallback = _openPortCallback;
         IScanner scanner = _scannerProvider.Instantiate(work);
         PrintSafe(work.Domain, $"Starting scan for type '{work.ServiceType}'");
         var responses = await scanner.Scan();

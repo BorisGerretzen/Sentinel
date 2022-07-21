@@ -13,7 +13,7 @@ public class HttpScanner<TEnum> : AbstractScanner<HttpScannerParams<TEnum>, TEnu
     public override async Task<Dictionary<int, Response>> Scan() {
         Dictionary<int, Response> returnDict = new();
 
-        var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
+        var openPorts = await ScanPorts();
 
         HttpClientHandler handler = new() {
             AllowAutoRedirect = true,

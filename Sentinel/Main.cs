@@ -1,6 +1,7 @@
 ﻿using Certstream;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Sentinel.Settings;
 using SentinelLib.Models;
 using SentinelLib.Models.ScannerParams;
 using SentinelLib.ScannerProviders;
@@ -8,21 +9,21 @@ using SentinelLib.ScannerProviders;
 namespace Sentinel;
 
 public class Main {
-    private readonly AppSettings _appSettings;
+    private readonly ExportSettings _exportSettings;
     private readonly Sentinel<ServiceType> _sentinel;
     private readonly IMongoCollection<ScannerOutput<ServiceType>>? _storageCollection;
 
-    public Main(AppSettings appSettings) {
-        _appSettings = appSettings;
+    public Main(ExportSettings exportSettings) {
+        _exportSettings = exportSettings;
 
         // Init MongoDB connection
-        if (_appSettings.ExportType is AppSettings.ExportTypes.Both or AppSettings.ExportTypes.Mongo) {
-            MongoClient storageClient = new(_appSettings.MongoConnectionString);
-            IMongoDatabase storageDb = storageClient.GetDatabase(_appSettings.MongoDatabase);
-            _storageCollection = storageDb.GetCollection<ScannerOutput<ServiceType>>(_appSettings.MongoCollection);
+        if (_exportSettings.ExportType is ExportSettings.ExportTypes.Both or ExportSettings.ExportTypes.Mongo) {
+            MongoClient storageClient = new(_exportSettings.MongoConnectionString);
+            IMongoDatabase storageDb = storageClient.GetDatabase(_exportSettings.MongoDatabase);
+            _storageCollection = storageDb.GetCollection<ScannerOutput<ServiceType>>(_exportSettings.MongoCollection);
         }
 
-        _sentinel = new Sentinel<ServiceType>(DefaultScannerProvider.Provider, ResponseCallback);
+        _sentinel = new Sentinel<ServiceType>(DefaultScannerProvider.Provider, ResponseCallback, OpenPortFound);
     }
 
     public void Start() {
@@ -36,12 +37,22 @@ public class Main {
     }
 
     /// <summary>
+    ///     Called when open ports are found for a service.
+    /// </summary>
+    /// <param name="ports">List of open ports.</param>
+    /// <param name="scannerParams"><see cref="StandardScannerParams{TEnum}" /> used to scan the host.</param>
+    /// <returns>Does nothing.</returns>
+    private Task OpenPortFound(List<int> ports, StandardScannerParams<ServiceType> scannerParams) =>
+        // Do what you want with open ports here
+        Task.CompletedTask;
+
+    /// <summary>
     ///     Called when a service is successfully scanned.
     /// </summary>
     /// <param name="param">Output from the scan.</param>
     private async Task ResponseCallback(ScannerOutput<ServiceType> param) {
         // File export
-        if (_appSettings.ExportType is AppSettings.ExportTypes.Both or AppSettings.ExportTypes.File) {
+        if (_exportSettings.ExportType is ExportSettings.ExportTypes.Both or ExportSettings.ExportTypes.File) {
             var json = JsonConvert.SerializeObject(
                 param,
                 Formatting.Indented,
@@ -52,7 +63,7 @@ public class Main {
         }
 
         // Mongo export
-        if (_appSettings.ExportType is AppSettings.ExportTypes.Both or AppSettings.ExportTypes.Mongo)
+        if (_exportSettings.ExportType is ExportSettings.ExportTypes.Both or ExportSettings.ExportTypes.Mongo)
             try {
                 if (_storageCollection is null) throw new NullReferenceException("Storage collection not initialized.");
                 await _storageCollection.InsertOneAsync(param);

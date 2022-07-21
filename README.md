@@ -38,9 +38,9 @@ Because this is a relatively old dataset, a lot of the domains listed no longer 
 This got me curious what differences could be observed when using more recent, near realtime CT logs.
 
 ## Future work
-- [ ] Increased result handling flexibility e.g. config for MongoDB instance.
-- [ ] More configuration options 
-- [ ] Callback for open ports, regardless of scan result
+- [x] Increased result handling flexibility e.g. config for MongoDB instance.
+- [x] More configuration options 
+- [x] Callback for open ports, regardless of scan result
 - [ ] CI/CD
 - [ ] Better logging
 - [ ] Nuget package of SentinelLib

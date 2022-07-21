@@ -39,7 +39,7 @@ public class FtpScanner<TEnum> : AbstractScanner<FtpScannerParams<TEnum>, TEnum>
     }
 
     public override async Task<Dictionary<int, Response>> Scan() {
-        var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
+        var openPorts = await ScanPorts();
         Dictionary<int, Response> returnDict = new();
 
         foreach (var port in openPorts)

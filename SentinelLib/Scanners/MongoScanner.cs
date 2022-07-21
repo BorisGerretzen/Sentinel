@@ -26,7 +26,7 @@ public class MongoScanner<TEnum> : AbstractScanner<StandardScannerParams<TEnum>,
     }
 
     public override async Task<Dictionary<int, Response>> Scan() {
-        var openPorts = (await ScanPorts()).Where(kvp => kvp.Value).Select(kvp => kvp.Key);
+        var openPorts = await ScanPorts();
         Dictionary<int, Response> returnDict = new();
         foreach (var port in openPorts)
             try {
